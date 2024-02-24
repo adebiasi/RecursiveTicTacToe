@@ -7,14 +7,19 @@ const numCols = 3
 
 let slider;
 
+let lastMove;
+let updatedLastMove = []
+
 function setup() {
 
     slider = document.getElementById('num_levels_slider'); // Ottenere il componente range
     slider.addEventListener('input', updateNumLevels); // Aggiungere un listener per l'evento di input
 
+    lastMove = [];
+    updatedLastMove = []
 
     createCanvas(1000, 1000);
-    board = new Board(0, 0, 0, width, height)
+    board = new Board(0, 0, 0, 0, 0, width, height)
 
     noLoop();
     redraw();
@@ -22,9 +27,24 @@ function setup() {
 }
 
 
-function draw() {
+function updateLastMoves() {
+    let currBoard = board;
+    updatedLastMove = [];
+    for (let i = 1; i < lastMove.length; i++) {
+        if ((lastMove[i] != null)
+            && currBoard.hasSubBoards()) {
+            currBoard = currBoard.getSubBoard(lastMove[i][0], lastMove[i][1]);
 
-    console.log("MAIN DRAW")
+            if (currBoard.winner == '') {
+                updatedLastMove.push(lastMove[i])
+            } else {
+                updatedLastMove.push('')
+            }
+        }
+    }
+}
+
+function draw() {
 
     background(0);
     textAlign(LEFT, LEFT);
@@ -33,6 +53,7 @@ function draw() {
 
     fill(255, 255, 255);
     checkWinner(board)
+    updateLastMoves()
     board.draw()
 
     if (board.winner != '') {
@@ -48,7 +69,6 @@ function draw() {
 function checkWinner(currBoard) {
 
     if (currBoard.hasSubBoards()) {
-        console.log("currBoard.hasSubBoards()")
         for (let col = 0; col < numCols; col++) {
             for (let row = 0; row < numRows; row++) {
                 let subBoard = currBoard.getSubBoard(col, row);
@@ -116,12 +136,31 @@ function mousePressed() {
         return
     }
 
-    for (let i = 0; i < numLevels - 1; i++) {
-        let indexes = getIndexes(i);
-        currBoard = currBoard.getSubBoard(indexes[0], indexes[1]);
-        if (currBoard.winner != '') {
+    let currMove = [];
+
+    let lastMoveBoard;
+
+    for (let currLevel = 0; currLevel < numLevels - 1; currLevel++) {
+        let indexes = getIndexes(currLevel);
+        if (indexes[0] < 0 || indexes[1] < 0) {
             return
         }
+
+        if (lastMove.length != 0) {
+            lastMoveBoard = currBoard.getSubBoard(lastMove[currLevel + 1][0], lastMove[currLevel + 1][1]);
+            console.log("set lastMoveBoard: " + lastMoveBoard)
+        }
+        currBoard = currBoard.getSubBoard(indexes[0], indexes[1]);
+        if (currBoard == null || currBoard.winner != '') {
+            return
+        }
+
+        if (lastMove.length != 0
+            && ((indexes[0] != lastMove[currLevel + 1][0]) || (indexes[1] != lastMove[currLevel + 1][1]))
+            && (lastMoveBoard.winner == '')) {
+            return
+        }
+        currMove.push(indexes);
     }
 
     let [col, row] = getIndexes(numLevels - 1);
@@ -130,15 +169,13 @@ function mousePressed() {
         if (currBoard.getValue(col, row) == '') {
             currBoard.setValue(currentPlayer, col, row);
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-
-            redraw();
+            currMove.push([col, row]);
         } else {
             currBoard.setValue('', col, row);
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-
-            redraw();
         }
-
+        lastMove = currMove;
+        redraw();
     }
 }
 
@@ -155,10 +192,12 @@ function updateNumLevels() {
 }
 
 class Board {
-    constructor(level, grid_x_offset, grid_y_offset, grid_width, grid_height) {
+    constructor(level, x, y, grid_x_offset, grid_y_offset, grid_width, grid_height) {
 
         this.winner = '';
         this.level = level;
+        this.x = x;
+        this.y = y;
         this.grid_x_offset = grid_x_offset;
         this.grid_y_offset = grid_y_offset;
         this.grid_width = grid_width;
@@ -170,7 +209,7 @@ class Board {
             for (let j = 0; j < numRows; j++) {
 
                 for (let i = 0; i < numCols; i++) {
-                    this.subBoards.push(new Board(level + 1, grid_x_offset + (i * grid_width / numCols), grid_y_offset + (j * grid_height / numRows), grid_width / numCols, grid_height / numRows))
+                    this.subBoards.push(new Board(level + 1, i, j, grid_x_offset + (i * grid_width / numCols), grid_y_offset + (j * grid_height / numRows), grid_width / numCols, grid_height / numRows))
                 }
             }
         }
@@ -182,7 +221,6 @@ class Board {
     }
 
     getSubBoard(col, row) {
-        console.log("getSubBoard " + col + " " + row + " " + this.get_pos(col, row))
         return this.subBoards[this.get_pos(col, row)];
     }
 
@@ -203,12 +241,25 @@ class Board {
         return Array(numRows).fill().map(() => Array(numCols).fill(''));
     }
 
-    draw() {
-        this.draw_grid(this, this.winner != '')
-        if (this.winner === '') {
-            this.subBoards.forEach(subBoard => {
-                subBoard.draw();
-            });
+    draw(alreadyTransparent = false) {
+        console.log("draw board")
+        if (this.winner == '') {
+            let transparent = alreadyTransparent || false;
+
+            if (this.level > 0
+                && (updatedLastMove.length != 0)
+                && (updatedLastMove[this.level-1] != null)
+                && (updatedLastMove[this.level-1] != '')
+                && ((this.x != updatedLastMove[this.level-1][0]) || (this.y != updatedLastMove[this.level-1][1]))
+            ) {
+                transparent = true;
+            }
+            this.draw_grid(this, transparent)
+            if (this.winner === '') {
+                this.subBoards.forEach(subBoard => {
+                    subBoard.draw(transparent);
+                });
+            }
         }
     }
 
@@ -226,7 +277,7 @@ class Board {
         let small_x_offset = board.grid_width / 10
         let small_y_offset = board.grid_height / 10
 
-        strokeWeight(2 * (numLevels - board.level) - 1 );
+        strokeWeight(2 * (numLevels - board.level) - 1);
         if (transparent) {
             stroke(255, 255, 255, alpha)
         } else {
