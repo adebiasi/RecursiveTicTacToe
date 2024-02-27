@@ -8,11 +8,11 @@ RecursiveTicTacToe is TicTacToe with the possbility to set the level of recursio
 
 ## Screenshots
 
-1 level of recusion ([Ultimate TicTacToe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe))
+1 level of recursion ([Ultimate TicTacToe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe))
 
 ![](https://github.com/adebiasi/RecursiveTicTacToe/blob/main/screenshots/1_recursion.png)
 
 
-2 level of recusion
+2 level of recursion
 
 ![](https://github.com/adebiasi/RecursiveTicTacToe/blob/main/screenshots/2_recursion.png)
