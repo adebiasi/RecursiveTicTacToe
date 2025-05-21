@@ -1,18 +1,24 @@
 # RecursiveTicTacToe
 
-RecursiveTicTacToe is TicTacToe with the possibility to set the level of recursion: 0 is the simple [TicTacToe](https://en.wikipedia.org/wiki/Tic-tac-toe), 1 is the [Ultimate TicTacToe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe), 2 and 3 are even more "recursive" games.
+RecursiveTicTacToe is a twist on the classic Tic-Tac-Toe game, allowing you to play in multiple layers of recursion:
 
-## Try it
+- Level 0: Standard [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe)  
+- Level 1: [Ultimate Tic-Tac-Toe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe)  
+- Levels 2 and 3: Even deeper recursive variants, adding new strategic dimensions
 
-https://adebiasi.github.io/RecursiveTicTacToe/
+Explore how recursion transforms a simple game into a layered challenge of planning and foresight.
 
-## Screenshots
+## ▶️ Play Now
 
-1 level of recursion ([Ultimate TicTacToe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe))
+👉 [Try it live](https://adebiasi.github.io/RecursiveTicTacToe/)
 
-![](https://github.com/adebiasi/RecursiveTicTacToe/blob/main/screenshots/1_recursion.png)
+## 🖼️ Screenshots
 
+### Level 1 — Ultimate Tic-Tac-Toe
 
-2 level of recursion
+![Level 1 Screenshot](https://github.com/adebiasi/RecursiveTicTacToe/blob/main/screenshots/1_recursion.png)
 
-![](https://github.com/adebiasi/RecursiveTicTacToe/blob/main/screenshots/2_recursion.png)
+### Level 2 — Double Recursion
+
+![Level 2 Screenshot](https://github.com/adebiasi/RecursiveTicTacToe/blob/main/screenshots/2_recursion.png)
+
